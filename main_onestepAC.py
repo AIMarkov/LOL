@@ -1,0 +1,51 @@
+from one_stepAC import onestepAC
+from randomwalk import randomwlk
+import matplotlib.pyplot as pl
+import numpy as np
+import pygame
+import time
+env=randomwlk()
+state_,reward,actions,terminal=env.reset()
+agent=onestepAC(actions)
+Critic=np.zeros(1500)
+Actor_left=np.zeros(1500)
+Actor_right=np.zeros(1500)
+for j in range(50):
+    agent.reset()
+    for i in range(1500):
+        state_, reward, actions, terminal = env.reset()
+        # env.show()
+        state=state_
+        I=1
+        print("j",j)
+        print('i',i)
+        while True:
+            action=agent.choose_action(state)
+            state_, reward,  terminal = env.step(action,state)
+            print(state)
+            print('left',agent.actor(0))
+            print('right',agent.actor(1))
+            agent.train( state, reward, action, state_, I,terminal)
+            if terminal==True:
+                break
+            I=agent.gamma*I
+            state=state_
+
+
+        Critic[i]+=agent.critic([0,0.1,1,0.1])
+        Actor_left[i]+=agent.actor(0)
+        Actor_right[i]+=agent.actor(1)
+pl.figure(1)
+pl.plot(Critic/50,'r')
+pl.show()
+pl.figure(2)
+pl.plot(Actor_right/50,'b')
+pl.plot(Actor_left/50,'g')
+pl.show()
+
+
+
+
+
+
+
